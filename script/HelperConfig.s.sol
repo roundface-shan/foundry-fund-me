@@ -18,7 +18,7 @@ contract HelperConfig is Script {
         if (block.chainid == 11155111) {
             activeNetworkConfig = getSepoliaEthConfig();
         } else {
-            activeNetworkConfig = getAnvilEthConfig();
+            activeNetworkConfig = getOrCreateAnvilEthConfig();
         }
     }
 
@@ -29,7 +29,11 @@ contract HelperConfig is Script {
         return sepoliaConfig;
     }
 
-    function getAnvilEthConfig() public returns (NetWorkConfig memory) {
+    function getOrCreateAnvilEthConfig() public returns (NetWorkConfig memory) {
+        if (activeNetworkConfig.priceFeed != address(0)) {
+            return activeNetworkConfig;
+        }
+
         vm.startBroadcast();
         MockV3Aggregator mockV3Aggregator = new MockV3Aggregator(
             DECIMALS,
